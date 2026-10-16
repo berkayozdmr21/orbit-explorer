@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import {PLANETS,position,transfer,transferPoint,planet} from './orbits';
+it('loads eight uniquely identified worlds',()=>{expect(PLANETS).toHaveLength(8);expect(new Set(PLANETS.map(p=>p.id)).size).toBe(8);});
+it('calculates the educational Earth to Mars benchmark',()=>{const t=transfer('earth','mars','2026-01-01');expect(t.days).toBeGreaterThan(258);expect(t.days).toBeLessThan(260);expect(t.total).toBeCloseTo(5.59,1);expect(t.phase).toBeGreaterThan(43);expect(t.phase).toBeLessThan(45);});
+it('inward and outward transfers have matching duration and impulse budget',()=>{const a=transfer('earth','mars','2026-01-01'),b=transfer('mars','earth','2026-01-01');expect(a.days).toBe(b.days);expect(a.total).toBeCloseTo(b.total,10);});
+it('rejects impossible dates',()=>expect(()=>transfer('earth','mars','2026-02-30')).toThrow());
+it('rejects the same world and unknown worlds',()=>{expect(()=>transfer('earth','earth','2026-01-01')).toThrow();expect(()=>transfer('fake','mars','2026-01-01')).toThrow();});
+it('returns to the same orbital position after one year',()=>{const p=planet('earth');expect(position(p,p.period)[0]).toBeCloseTo(position(p,0)[0],8);});
+it('begins and ends transfer exactly on the two visual orbits',()=>{for(const [a,b] of [['earth','mars'],['neptune','venus']]){const from=planet(a),to=planet(b);expect(transferPoint(from,to,0)[0]).toBeCloseTo(from.orbit,8);expect(transferPoint(from,to,1)[0]).toBeCloseTo(-to.orbit,8);expect(transferPoint(from,to,1)[2]).toBeCloseTo(0,8);}});
+it('clamps transfer progress to endpoints',()=>{expect(transferPoint(planet('earth'),planet('mars'),-5)).toEqual(transferPoint(planet('earth'),planet('mars'),0));});

@@ -1,0 +1,13 @@
+import React from 'react';
+import {it,expect,vi,beforeEach,afterEach} from 'vitest';
+import {render,screen,fireEvent,cleanup,waitFor} from '@testing-library/react';
+import {App} from './main';
+vi.mock('./SpaceScene',()=>({default:()=> <div data-testid="scene">3D scene</div>}));
+vi.mock('./LaunchScene',()=>({default:()=> <div data-testid="launch-scene">Launch scene</div>}));
+vi.mock('gsap',()=>({default:{context:()=>({revert(){}})}}));
+beforeEach(()=>{vi.stubGlobal('fetch',vi.fn(async(url,options)=>({ok:true,status:200,json:async()=>url.endsWith('/missions')?options?{id:'a',title:'test',route:JSON.parse(options.body),result:{}}:[]:{status:'ready'}})));});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+it('switches planetary data when selecting a planet',async()=>{render(<App/>);await screen.findByTestId('scene');fireEvent.click(screen.getByRole('button',{name:/^Mars/}));expect(screen.getByRole('heading',{name:'Mars'})).toBeTruthy();expect(screen.getByText('Kızıl Gezegen',{exact:false})).toBeTruthy();});
+it('opens the mission planner and guards invalid routes',async()=>{render(<App/>);await screen.findByTestId('scene');fireEvent.click(screen.getByRole('button',{name:'Görev planla',exact:true}));expect(screen.getByText('Bir görev tasarla.')).toBeTruthy();fireEvent.change(screen.getByLabelText('Hedef dünya'),{target:{value:'earth'}});expect(screen.getByText('İki farklı gezegen seç.')).toBeTruthy();expect(screen.queryByRole('button',{name:/Görevi kaydet/})).toBeNull();});
+it('opens motion controls and toggles reduced motion',async()=>{render(<App/>);await screen.findByTestId('scene');fireEvent.click(screen.getByRole('button',{name:'Animasyon ayarları'}));const box=screen.getByRole('checkbox',{name:/Hareketi azalt/});fireEvent.click(box);expect(document.querySelector('.app.reduced')).toBeTruthy();});
+it('opens rocket flight and scrubs to stage separation',async()=>{render(<App/>);await screen.findByTestId('scene');fireEvent.click(screen.getByRole('button',{name:/Roket uçuşu/}));await screen.findByTestId('launch-scene');fireEvent.change(screen.getByRole('slider',{name:'Roket uçuş zamanı'}),{target:{value:'95'}});expect(screen.getAllByText('Kademe ayrılması').length).toBeGreaterThan(0);expect(screen.getByText('95 / 240 s')).toBeTruthy();});
