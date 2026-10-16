@@ -24,6 +24,11 @@ Developed by **Berkay Özdemir** · [GitHub](https://github.com/berkayozdmr21)
 
 ## Launch laboratory
 
+![Orbit Explorer launch laboratory](docs/launch.jpg)
+
+Actual browser capture of the stylized launch scene.
+
+
 Choose **Orbit MK I**, **Ares Heavy** or **Pioneer Probe**, then launch from the coastal pad.
 
 - Countdown, lift-off, gravity-turn presentation, stage separation, fairing separation and engine cutoff.
