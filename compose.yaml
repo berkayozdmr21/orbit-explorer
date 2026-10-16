@@ -1,0 +1,10 @@
+services:
+  explorer:
+    build: .
+    ports:
+      - "127.0.0.1:8970:8970"
+    volumes:
+      - mission-data:/app/data
+    restart: unless-stopped
+volumes:
+  mission-data:
